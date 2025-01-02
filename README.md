@@ -31,7 +31,7 @@ The dataset split information was stored in the `setid.mat` file. The data was d
 ## Dependencies
 - PyTorch
 - torchvision
-- numpy
+- scipy
 - Pillow
 - matplotlib
 - tqdm
