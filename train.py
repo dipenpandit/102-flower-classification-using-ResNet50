@@ -49,10 +49,10 @@ def train_step(model: torch.nn.Module,
     return train_loss, train_acc
 
 
+# Validation function
 def val_step(model: torch.nn.Module, 
              dataloader: torch.utils.data.DataLoader, 
              loss_fn: torch.nn.Module, 
-             optimizer: torch.optim.Optimizer,
              accuracy_fn,
              device):
     # Put the model in eval mode
@@ -85,4 +85,40 @@ def val_step(model: torch.nn.Module,
         val_acc = val_acc / len(dataloader)
         return val_loss, val_acc
 
+# Model evaluation function
+def eval_model(model: torch.nn.Module, 
+               data_loader: torch.utils.data.DataLoader, 
+               loss_fn: torch.nn.Module, 
+               accuracy_fn,
+               device):
+    """Returns a dictionary containing the results of model predicting on data_loader.
+         - model_name
+         - loss
+         - accuracy
+    """
+    # Setup loss and acc
+    loss, acc = 0, 0
+    
+    model.eval()
+    # Turn on inference mode
+    with torch.inference_mode():
+        # Loop through each batch of data
+        for X, y in data_loader:
+            # Send the data to target device
+            X,y = X.to(device), y.long().to(device)  # Cross Entropy expects y to be a long integer
+            
+            # Make predictions with the model
+            y_logits = model(X)
+            y_pred = torch.argmax(torch.softmax(y_logits, dim=1), dim=1)
+            
+            # Accumulate the loss and accuracy values per batch
+            loss += loss_fn(y_logits, y)
+            acc += accuracy_fn(y_pred, y) # For accuracy, need the prediction labels (logits -> pred_prob -> pred_labels)
         
+        # Scale loss and acc to find the average loss/acc per batch
+        loss /= len(data_loader)
+        acc /= len(data_loader)
+        
+    return {"model_name": model.__class__.__name__, 
+            "model_loss": loss.item(),
+            "model_acc": acc}

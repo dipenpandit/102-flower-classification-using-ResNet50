@@ -31,3 +31,12 @@ def plot_transformed_images(image_paths, labels, transform, n=3, seed=None):
 
             # Mention the respective class of the image
             fig.suptitle(f"Class: {y}", fontsize=16)
+
+
+
+
+
+
+
+
+
